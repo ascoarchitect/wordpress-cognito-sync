@@ -98,7 +98,7 @@ The plugin synchronizes WordPress roles with Cognito groups. The Admin class man
 * Deploy the CloudFormation stack:
 
 ```bash
-aws cloudformation deploy --template-file infrastructure/cognito-sync-cloudformation.yaml --stack-name wp-cognito-sync --parameter-overrides Environment=prod CognitoUserPoolId=us-west-2_xxxxxxxx
+aws cloudformation deploy --template-file infrastructure/cognito-sync-cloudformation.yaml --stack-name wp-cognito-sync --parameter-overrides Environment=prod CognitoUserPoolId=xx-xxxx-x_xxxxxxxx
 ```
 
 Note the API Gateway endpoint URL and API key from the CloudFormation stack outputs.
