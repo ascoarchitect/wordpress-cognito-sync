@@ -6,6 +6,7 @@ The WordPress Cognito Sync plugin automatically synchronizes WordPress user and 
 Made with :heart: for the :earth_africa: by Adam Scott.
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/E1E3E8UBL)
+<br/><a href="https://www.buymeacoffee.com/ascoarchitect" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 **Missing a feature? Submit your contributions to make this better for everyone!**
 
