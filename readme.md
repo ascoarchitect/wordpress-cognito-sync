@@ -1,7 +1,7 @@
 # WordPress Cognito Sync Plugin and AWS Integration
 ## Overview
 
-The WordPress Cognito Sync plugin automatically synchronizes WordPress user and group operations with Amazon Cognito User Pools using AWS API Gateway and Lambda. It supports full and test synchronization options, detailed logs, and automatic account creation on user login.
+The WordPress Cognito Sync plugin automatically synchronises WordPress user and group operations with Amazon Cognito User Pools using AWS API Gateway and Lambda. It supports full and test synchronisation options, detailed logs, and automatic account creation on user login.
 
 Made with :heart: for the :earth_africa: by Adam Scott.
 
@@ -12,10 +12,10 @@ Made with :heart: for the :earth_africa: by Adam Scott.
 
 ## Features
 
-* Synchronize WordPress users with Amazon Cognito User Pools
-* Synchronize WordPress roles with Amazon Cognito groups
+* Synchronise WordPress users with Amazon Cognito User Pools
+* Synchronise WordPress roles with Amazon Cognito groups
 * Automatically create Cognito accounts on user login
-* Full and test synchronization options for users and groups
+* Full and test synchronisation options for users and groups
 * Detailed logs and sync results
 
 ## Requirements
@@ -61,8 +61,8 @@ graph TD
 ```
 
 ## WordPress Plugin Functionality
-### Initialization
-The plugin is initialized in wp-cognito-sync.php. It sets up the autoloading of classes and hooks into WordPress actions.
+### Initialisation
+The plugin is initialised in wp-cognito-sync.php. It sets up the autoloading of classes and hooks into WordPress actions.
 
 ### Admin Interface
 The admin interface is managed by the Admin class. It adds menu items, registers settings, and handles form submissions.
@@ -72,22 +72,22 @@ The admin interface is managed by the Admin class. It adds menu items, registers
 ### Tabs
 
 * Settings: Configure API Gateway URL and API key.
-* Sync Management: Perform full or test synchronization of users and groups.
-* Logs: View synchronization logs.
-* Group Management: Manage synchronization of WordPress roles with Cognito groups.
+* Sync Management: Perform full or test synchronisation of users and groups.
+* Logs: View synchronisation logs.
+* Group Management: Manage synchronisation of WordPress roles with Cognito groups.
 
-### User Synchronization
-The API class handles communication with the AWS Lambda function. It sends user and group data to the Lambda function for synchronization with Cognito.
+### User Synchronisation
+The API class handles communication with the AWS Lambda function. It sends user and group data to the Lambda function for synchronisation with Cognito.
 
 ### User Flow
 
 * User logs in to WordPress.
 * The User class checks if the user exists in Cognito.
 * If not, the user is created in Cognito.
-* User data is synchronized with Cognito.
+* User data is synchronised with Cognito.
 
-### Group Synchronization
-The plugin synchronizes WordPress roles with Cognito groups. The Admin class manages the group synchronization settings and actions.
+### Group Synchronisation
+The plugin synchronises WordPress roles with Cognito groups. The Admin class manages the group synchronisation settings and actions.
 
 ### Deployment
 #### Prerequisites
@@ -112,6 +112,6 @@ Note the API Gateway endpoint URL and API key from the CloudFormation stack outp
 
 ### Conclusion
 
-The WordPress Cognito Sync plugin provides seamless synchronization between WordPress and Amazon Cognito User Pools. By leveraging AWS Lambda and API Gateway, it ensures that user and group data is consistently synchronized, providing a robust solution for managing user authentication and authorization.
+The WordPress Cognito Sync plugin provides seamless synchronisation between WordPress and Amazon Cognito User Pools. By leveraging AWS Lambda and API Gateway, it ensures that user and group data is consistently synchronised, providing a robust solution for managing user authentication and authorisation.
 
 **This plugin is provided "as is" without any guarantees or warranty. In association with the product, the author makes no warranties of any kind, either express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, of title, or of non-infringement of third-party rights. Use of the product by a user is at the user’s risk.**
