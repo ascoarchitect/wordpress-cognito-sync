@@ -98,7 +98,7 @@ The plugin synchronises WordPress roles with Cognito groups. The Admin class man
 #### Steps
 * Create two custom attributes in your existing User Pool for storing Wordpress IDs:
 
-Name: wp_user_id | Type: String | Mutable: Yes
+Name: wp_user_id | Type: String | Mutable: Yes</br>
 Name: wp_username | Type: String | Mutable: Yes
 
 wp_user_id is for storing the user ID reference against the Cognito user record, and wp_username is for supporting usernames which are not email addresses in Wordpress. The Cognito user ID will be stored against the user record in Wordpress to ensure that this is used for quick update matching in the future.
