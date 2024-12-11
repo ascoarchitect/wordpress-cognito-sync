@@ -208,6 +208,18 @@ Resources:
                       Value: user.wp_user_id.toString()
                   });
               }
+              if (user.wp_membercategory) {
+                  input.UserAttributes.push({
+                      Name: 'custom:wp_membercategory',
+                      Value: user.wp_membercategory.toString()
+                  });
+              }
+              if (user.wp_memberrank) {
+                  input.UserAttributes.push({
+                      Name: 'custom:wp_memberrank',
+                      Value: user.wp_memberrank.toString()
+                  });
+              }
               if (user.firstName) {
                   input.UserAttributes.push({
                       Name: 'given_name',
@@ -265,6 +277,18 @@ Resources:
                           input.UserAttributes.push({
                               Name: 'custom:wp_user_id',
                               Value: user.wp_user_id.toString()
+                          });
+                      }
+                      if (user.wp_membercategory) {
+                          input.UserAttributes.push({
+                              Name: 'custom:wp_membercategory',
+                              Value: user.wp_membercategory.toString()
+                          });
+                      }
+                      if (user.wp_memberrank) {
+                          input.UserAttributes.push({
+                              Name: 'custom:wp_memberrank',
+                              Value: user.wp_memberrank.toString()
                           });
                       }
                       if (user.firstName) {

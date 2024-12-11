@@ -47,7 +47,9 @@ class User {
             'email' => $user->user_email,
             'firstName' => get_user_meta($user_id, 'first_name', true),
             'lastName' => get_user_meta($user_id, 'last_name', true),
-            'wp_user_id' => $user_id
+            'wp_user_id' => $user_id,
+            'wp_memberrank' => get_user_meta($user_id, 'wpuef_cid_c6', true),
+            'wp_membercategory' => get_user_meta($user_id, 'wpuef_cid_c10', true)
         ];
 
         // Send update request to ensure Cognito is in sync

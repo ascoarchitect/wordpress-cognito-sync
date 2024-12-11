@@ -92,7 +92,9 @@ class API {
             'email' => $user->user_email,
             'username' => $user->user_login,
             'firstName' => get_user_meta($user_id, 'first_name', true),
-            'lastName' => get_user_meta($user_id, 'last_name', true)
+            'lastName' => get_user_meta($user_id, 'last_name', true),
+            'wp_memberrank' => get_user_meta($user_id, 'wpuef_cid_c6', true),
+            'wp_membercategory' => get_user_meta($user_id, 'wpuef_cid_c10', true)
         ];
 
         $this->log_message("Creating user in Cognito: {$user->user_email}");
@@ -120,6 +122,8 @@ class API {
             'username' => $user->user_login,
             'firstName' => get_user_meta($user_id, 'first_name', true),
             'lastName' => get_user_meta($user_id, 'last_name', true),
+            'wp_memberrank' => get_user_meta($user_id, 'wpuef_cid_c6', true),
+            'wp_membercategory' => get_user_meta($user_id, 'wpuef_cid_c10', true),
             'cognito_user_id' => $cognito_user_id
         ];
 
