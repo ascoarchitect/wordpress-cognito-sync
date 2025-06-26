@@ -516,9 +516,6 @@ Resources:
   # Associate API Key with Usage Plan
   ApiUsagePlanKey:
     Type: AWS::ApiGateway::UsagePlanKey
-    DependsOn:
-      - ApiKey
-      - ApiUsagePlan
     Properties:
       KeyId: !Ref ApiKey
       KeyType: API_KEY
