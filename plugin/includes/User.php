@@ -11,22 +11,26 @@ class User {
     }
 
     public function handle_user_login($user_login, $user) {
-        error_log("WP Cognito Sync: Processing login for user {$user->ID}");
+        try {
+            error_log("WP Cognito Sync: Processing login for user {$user->ID}");
 
-        // Check if login sync is enabled
-        if (!get_option('wp_cognito_sync_login_create', false)) {
-            error_log("WP Cognito Sync: Login sync disabled, skipping");
-            return;
-        }
+            // Check if login sync is enabled
+            if (!get_option('wp_cognito_sync_login_create', false)) {
+                error_log("WP Cognito Sync: Login sync disabled, skipping");
+                return;
+            }
 
-        // Get Cognito ID
-        $cognito_id = get_user_meta($user->ID, 'cognito_user_id', true);
+            // Get Cognito ID
+            $cognito_id = get_user_meta($user->ID, 'cognito_user_id', true);
 
-        // If no Cognito ID exists and login create is enabled, create the user
-        if (empty($cognito_id)) {
-            error_log("WP Cognito Sync: No Cognito ID found, creating user");
-            $this->api->sync_user_create($user->ID);
-            return;
+            // If no Cognito ID exists and login create is enabled, create the user
+            if (empty($cognito_id)) {
+                error_log("WP Cognito Sync: No Cognito ID found, creating user");
+                $this->api->sync_user_create($user->ID);
+                return;
+            }
+        } catch (Exception $e) {
+            error_log("WP Cognito Sync: Error during login processing: " . $e->getMessage());
         }
 
         // Otherwise, perform a sync check
@@ -34,26 +38,30 @@ class User {
     }
 
     private function check_and_sync_user($user_id) {
-        error_log("WP Cognito Sync: Checking user sync status for user {$user_id}");
-        
-        $user = get_userdata($user_id);
-        if (!$user) {
-            error_log("WP Cognito Sync: Unable to get user data for ID {$user_id}");
-            return;
+        try {
+            error_log("WP Cognito Sync: Checking user sync status for user {$user_id}");
+
+            $user = get_userdata($user_id);
+            if (!$user) {
+                error_log("WP Cognito Sync: Unable to get user data for ID {$user_id}");
+                return;
+            }
+
+            // Get current WordPress data
+            $wp_data = [
+                'email' => $user->user_email,
+                'firstName' => get_user_meta($user_id, 'first_name', true),
+                'lastName' => get_user_meta($user_id, 'last_name', true),
+                'wp_user_id' => $user_id,
+                'wp_memberrank' => get_user_meta($user_id, 'wpuef_cid_c6', true),
+                'wp_membercategory' => get_user_meta($user_id, 'wpuef_cid_c10', true)
+            ];
+
+            // Send update request to ensure Cognito is in sync
+            $this->api->sync_user_update($user_id, null);
+        } catch (Exception $e) {
+            error_log("WP Cognito Sync: Error during user sync check: " . $e->getMessage());
         }
-
-        // Get current WordPress data
-        $wp_data = [
-            'email' => $user->user_email,
-            'firstName' => get_user_meta($user_id, 'first_name', true),
-            'lastName' => get_user_meta($user_id, 'last_name', true),
-            'wp_user_id' => $user_id,
-            'wp_memberrank' => get_user_meta($user_id, 'wpuef_cid_c6', true),
-            'wp_membercategory' => get_user_meta($user_id, 'wpuef_cid_c10', true)
-        ];
-
-        // Send update request to ensure Cognito is in sync
-        $this->api->sync_user_update($user_id, null);
     }
 
     public function add_cognito_id_field($user) {

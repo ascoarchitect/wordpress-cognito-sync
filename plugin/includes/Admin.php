@@ -80,7 +80,15 @@ class Admin {
     }
 
     private function toggle_group_sync($group_id, $enabled) {
-        $group_name = sanitize_text_field($_POST['group_id']);
+        // Sanitize and validate group name
+        $group_name = sanitize_key($_POST['group_id']); // Use sanitize_key instead of sanitize_text_field
+
+        // Validate against actual WordPress roles
+        $roles = get_editable_roles();
+        if (!array_key_exists($group_name, $roles)) {
+            wp_die('Invalid role specified');
+        }
+
         $synced_groups = get_option('wp_cognito_sync_groups', array());
         
         if (!is_array($synced_groups)) {
@@ -225,7 +233,12 @@ class Admin {
                     );
                 }
 
-                $stats['progress'] = ($offset + $stats['total']) / (get_user_count());
+                $total_users = get_user_count();
+                if ($total_users > 0) {
+                    $stats['progress'] = ($offset + $stats['total']) / $total_users;
+                } else {
+                    $stats['progress'] = 1.0; // Complete if no users
+                }
                 set_transient('cognito_sync_progress', $stats, HOUR_IN_SECONDS);
             }
             

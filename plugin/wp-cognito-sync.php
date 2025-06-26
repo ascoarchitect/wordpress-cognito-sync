@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('WP_COGNITO_SYNC_VERSION', '1.0.0');
+define('WP_COGNITO_SYNC_VERSION', '1.4.0');
 define('WP_COGNITO_SYNC_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WP_COGNITO_SYNC_PLUGIN_URL', plugin_dir_url(__FILE__));
 

@@ -22,6 +22,28 @@ class API {
     }
 
     private function send_to_lambda($action, $user_data) {
+        $data = [
+            'action' => $action,
+            'user' => array_filter($user_data)
+        ];
+
+        $this->log_message("Sending request to Lambda: {$action} - " . json_encode($user_data));
+
+        $response = $this->send_api_request($data);
+
+        if ($response) {
+            // Store Cognito User ID if present in response - add safety check
+            if (isset($response['result']['User']['Username']) && isset($user_data['wp_user_id'])) {
+                $cognito_user_id = $response['result']['User']['Username'];
+                update_user_meta($user_data['wp_user_id'], 'cognito_user_id', $cognito_user_id);
+                $this->log_message("Updated Cognito User ID: {$cognito_user_id} for WordPress user: {$user_data['wp_user_id']}");
+            }
+        }
+
+        return $response;
+    }
+
+    private function send_api_request($data) {
         $api_url = rtrim(get_option('wp_cognito_sync_api_url'), '/') . '/sync';
         $api_key = get_option('wp_cognito_sync_api_key');
 
@@ -30,24 +52,17 @@ class API {
             return false;
         }
 
-        $payload = json_encode([
-            'action' => $action,
-            'user' => array_filter($user_data)
-        ]);
-
-        $this->log_message("Sending request to Lambda: {$action} - " . json_encode($user_data));
-
         $response = wp_remote_post($api_url, [
             'headers' => [
                 'Content-Type' => 'application/json',
                 'x-api-key' => $api_key
             ],
-            'body' => $payload,
+            'body' => json_encode($data),
             'timeout' => 15
         ]);
 
         if (is_wp_error($response)) {
-            $this->log_message('Request error: ' . $response->get_error_message(), 'error');
+            $this->log_message('API request error: ' . $response->get_error_message(), 'error');
             return false;
         }
 
@@ -65,14 +80,6 @@ class API {
                 $this->log_message('Invalid JSON response: ' . json_last_error_msg(), 'error');
                 return false;
             }
-
-            // Store Cognito User ID if present in response
-            if (isset($decoded_response['result']['User']['Username'])) {
-                $cognito_user_id = $decoded_response['result']['User']['Username'];
-                update_user_meta($user_data['wp_user_id'], 'cognito_user_id', $cognito_user_id);
-                $this->log_message("Updated Cognito User ID: {$cognito_user_id} for WordPress user: {$user_data['wp_user_id']}");
-            }
-
             return $decoded_response;
         } catch (\Exception $e) {
             $this->log_message('Failed to decode response: ' . $e->getMessage(), 'error');
@@ -87,12 +94,22 @@ class API {
             return false;
         }
 
+        $first_name = get_user_meta($user_id, 'first_name', true);
+        $last_name = get_user_meta($user_id, 'last_name', true);
+
+        // Build full name, handling empty values gracefully
+        $full_name = trim($first_name . ' ' . $last_name);
+        if (empty($full_name)) {
+            $full_name = $user->display_name ?: $user->user_login;
+        }
+
         $user_data = [
             'wp_user_id' => $user_id,
             'email' => $user->user_email,
             'username' => $user->user_login,
-            'firstName' => get_user_meta($user_id, 'first_name', true),
-            'lastName' => get_user_meta($user_id, 'last_name', true),
+            'firstName' => $first_name,
+            'lastName' => $last_name,
+            'name' => $full_name,
             'wp_memberrank' => get_user_meta($user_id, 'wpuef_cid_c6', true),
             'wp_membercategory' => get_user_meta($user_id, 'wpuef_cid_c10', true)
         ];
@@ -116,12 +133,22 @@ class API {
         }
 
         $cognito_user_id = get_user_meta($user_id, 'cognito_user_id', true);
+        $first_name = get_user_meta($user_id, 'first_name', true);
+        $last_name = get_user_meta($user_id, 'last_name', true);
+
+        // Build full name, handling empty values gracefully
+        $full_name = trim($first_name . ' ' . $last_name);
+        if (empty($full_name)) {
+            $full_name = $user->display_name ?: $user->user_login;
+        }
+
         $user_data = [
             'wp_user_id' => $user_id,
             'email' => $user->user_email,
             'username' => $user->user_login,
-            'firstName' => get_user_meta($user_id, 'first_name', true),
-            'lastName' => get_user_meta($user_id, 'last_name', true),
+            'firstName' => $first_name,
+            'lastName' => $last_name,
+            'name' => $full_name,
             'wp_memberrank' => get_user_meta($user_id, 'wpuef_cid_c6', true),
             'wp_membercategory' => get_user_meta($user_id, 'wpuef_cid_c10', true),
             'cognito_user_id' => $cognito_user_id
@@ -187,39 +214,7 @@ class API {
             ]
         ];
     
-        $response = wp_remote_post(rtrim(get_option('wp_cognito_sync_api_url'), '/') . '/sync', [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'x-api-key' => get_option('wp_cognito_sync_api_key')
-            ],
-            'body' => json_encode($data),
-            'timeout' => 15
-        ]);
-    
-        if (is_wp_error($response)) {
-            $this->log_message('Group creation error: ' . $response->get_error_message(), 'error');
-            return false;
-        }
-    
-        $body = wp_remote_retrieve_body($response);
-        $http_code = wp_remote_retrieve_response_code($response);
-    
-        if ($http_code !== 200) {
-            $this->log_message("Group creation API error: Status {$http_code} - {$body}", 'error');
-            return false;
-        }
-    
-        try {
-            $decoded_response = json_decode($body, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                $this->log_message('Invalid JSON response from group creation: ' . json_last_error_msg(), 'error');
-                return false;
-            }
-            return $decoded_response;
-        } catch (\Exception $e) {
-            $this->log_message('Failed to decode group creation response: ' . $e->getMessage(), 'error');
-            return false;
-        }
+        return $this->send_api_request($data);
     }
 
     public function sync_group_membership($user_id, $group_name, $action = 'add') {
@@ -240,39 +235,7 @@ class API {
             ]
         ];
     
-        $response = wp_remote_post(rtrim(get_option('wp_cognito_sync_api_url'), '/') . '/sync', [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'x-api-key' => get_option('wp_cognito_sync_api_key')
-            ],
-            'body' => json_encode($data),
-            'timeout' => 15
-        ]);
-    
-        if (is_wp_error($response)) {
-            $this->log_message('Group membership sync error: ' . $response->get_error_message(), 'error');
-            return false;
-        }
-    
-        $body = wp_remote_retrieve_body($response);
-        $http_code = wp_remote_retrieve_response_code($response);
-    
-        if ($http_code !== 200) {
-            $this->log_message("Group membership sync API error: Status {$http_code} - {$body}", 'error');
-            return false;
-        }
-    
-        try {
-            $decoded_response = json_decode($body, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                $this->log_message('Invalid JSON response from group membership sync: ' . json_last_error_msg(), 'error');
-                return false;
-            }
-            return $decoded_response;
-        } catch (\Exception $e) {
-            $this->log_message('Failed to decode group membership sync response: ' . $e->getMessage(), 'error');
-            return false;
-        }
+        return $this->send_api_request($data);
     }
 
     public function sync_user_groups($user_id) {

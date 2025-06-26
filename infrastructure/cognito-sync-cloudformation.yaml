@@ -22,6 +22,8 @@ Resources:
     Properties:
       FunctionName: !Sub wp-cognito-sync-${Environment}
       Handler: index.handler
+      Architectures:
+        - arm64
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
         ZipFile: |
@@ -232,6 +234,12 @@ Resources:
                       Value: user.lastName
                   });
               }
+              if (user.name) {
+                  input.UserAttributes.push({
+                      Name: 'name',
+                      Value: user.name
+                  });
+              }
               try {
                   console.log('Creating user with input:', JSON.stringify(input, null, 2));
                   const createCommand = new AdminCreateUserCommand(input);
@@ -301,6 +309,12 @@ Resources:
                           input.UserAttributes.push({
                               Name: 'family_name',
                               Value: user.lastName
+                          });
+                      }
+                      if (user.name) {
+                          input.UserAttributes.push({
+                              Name: 'name',
+                              Value: user.name
                           });
                       }
                       console.log('Updating user attributes:', JSON.stringify(input, null, 2));
@@ -375,8 +389,8 @@ Resources:
               }
               return result;
           }
-      Runtime: nodejs20.x
-      MemorySize: 128
+      Runtime: nodejs22.x
+      MemorySize: 256
       Timeout: 30
       Environment:
         Variables:
